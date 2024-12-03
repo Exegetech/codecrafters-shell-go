@@ -50,13 +50,22 @@ func parseString(input string) []string {
 	var tokens []string
 	var currentToken strings.Builder
 	inQuotes := false
+	inDoubleQuotes := false
 
 	for _, char := range input {
 		switch char {
 		case '\'':
-			inQuotes = !inQuotes
+			if inDoubleQuotes {
+				currentToken.WriteRune(char)
+			} else {
+				inQuotes = !inQuotes
+			}
+
+		case '"':
+			inDoubleQuotes = !inDoubleQuotes
+
 		case ' ':
-			if inQuotes {
+			if inQuotes || inDoubleQuotes {
 				currentToken.WriteRune(char)
 			} else {
 				if currentToken.Len() > 0 {

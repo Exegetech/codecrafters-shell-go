@@ -29,6 +29,13 @@ func readFromStdin() (stdin, error) {
 		i++
 	}
 
+	if i == len(input) {
+		return stdin{
+			cmd:  input,
+			args: []string{},
+		}, nil
+	}
+
 	cmd := input[:i]
 	rest := input[i+1:]
 	args := parseString(rest)

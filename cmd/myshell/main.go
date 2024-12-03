@@ -102,7 +102,7 @@ func handleType(cmd string, path string) {
 		return
 	}
 
-	fmt.Printf("%s: command not found\n", cmd)
+	fmt.Printf("%s: not found\n", cmd)
 }
 
 func getFullPath(cmd, path string) (string, bool) {

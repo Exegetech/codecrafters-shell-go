@@ -47,8 +47,10 @@ func readFromStdin() (stdin, error) {
 }
 
 func parseString(input string) []string {
-	var tokens []string
+	tokens := []string{}
+
 	var currentToken strings.Builder
+
 	inQuotes := false
 	inDoubleQuotes := false
 	isEscaped := false
@@ -69,7 +71,11 @@ func parseString(input string) []string {
 			}
 
 		case '"':
-			inDoubleQuotes = !inDoubleQuotes
+			if inQuotes {
+				currentToken.WriteRune(char)
+			} else {
+				inDoubleQuotes = !inDoubleQuotes
+			}
 
 		case ' ':
 			if inQuotes || inDoubleQuotes {
@@ -82,7 +88,7 @@ func parseString(input string) []string {
 			}
 
 		case '\\':
-			if inDoubleQuotes {
+			if inQuotes || inDoubleQuotes {
 				currentToken.WriteRune(char)
 			} else {
 				isEscaped = true

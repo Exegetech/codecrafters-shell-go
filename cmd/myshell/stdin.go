@@ -51,8 +51,15 @@ func parseString(input string) []string {
 	var currentToken strings.Builder
 	inQuotes := false
 	inDoubleQuotes := false
+	isEscaped := false
 
 	for _, char := range input {
+		if isEscaped {
+			currentToken.WriteRune(char)
+			isEscaped = false
+			continue
+		}
+
 		switch char {
 		case '\'':
 			if inDoubleQuotes {
@@ -73,6 +80,14 @@ func parseString(input string) []string {
 					currentToken.Reset()
 				}
 			}
+
+		case '\\':
+			if inDoubleQuotes {
+				currentToken.WriteRune(char)
+			} else {
+				isEscaped = true
+			}
+
 		default:
 			currentToken.WriteRune(char)
 		}

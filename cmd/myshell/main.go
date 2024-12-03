@@ -18,6 +18,7 @@ const (
 	exit
 	type_
 	pwd
+	cd
 )
 
 func (b builtin) String() string {
@@ -30,6 +31,8 @@ func (b builtin) String() string {
 		return "type"
 	case pwd:
 		return "pwd"
+	case cd:
+		return "cd"
 	default:
 		return "unknown"
 	}
@@ -40,6 +43,7 @@ var builtins = map[string]bool{
 	exit.String():  true,
 	type_.String(): true,
 	pwd.String():   true,
+	cd.String():    true,
 }
 
 func main() {
@@ -67,6 +71,9 @@ func main() {
 
 		case pwd.String():
 			handlePwd()
+
+		case cd.String():
+			handleCd(args[0])
 
 		default:
 			fullPath, ok := getFullPath(cmd, path)
@@ -142,4 +149,20 @@ func executeCmd(cmd string, args []string) error {
 func handlePwd() {
 	pwd, _ := os.Getwd()
 	fmt.Println(pwd)
+}
+
+func handleCd(target string) {
+	// home, _ := os.UserHomeDir()
+
+	if strings.HasPrefix(target, "/") {
+		// os.Stat(target)
+		if _, err := os.Stat(target); errors.Is(err, os.ErrNotExist) {
+			fmt.Printf("cd: %s: No such file or directory\n", target)
+			return
+		}
+
+		os.Chdir(target)
+		// os.Chdir(filepath.Join(home, target))
+		return
+	}
 }

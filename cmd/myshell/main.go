@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"log"
@@ -11,89 +10,42 @@ import (
 	"strings"
 )
 
-type builtin int
-
-const (
-	echo builtin = iota
-	exit
-	type_
-	pwd
-	cd
-)
-
-func (b builtin) String() string {
-	switch b {
-	case echo:
-		return "echo"
-	case exit:
-		return "exit"
-	case type_:
-		return "type"
-	case pwd:
-		return "pwd"
-	case cd:
-		return "cd"
-	default:
-		return "unknown"
-	}
-}
-
-var builtins = map[string]bool{
-	echo.String():  true,
-	exit.String():  true,
-	type_.String(): true,
-	pwd.String():   true,
-	cd.String():    true,
-}
-
 func main() {
 	for true {
 		fmt.Fprint(os.Stdout, "$ ")
 
-		input, err := readFromStdin()
+		stdin, err := readFromStdin()
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		path := os.Getenv("PATH")
-		cmd := input[0]
-		args := input[1:]
 
-		switch cmd {
+		switch stdin.cmd {
 		case exit.String():
 			handleExit()
 
 		case echo.String():
-			handleEcho(args)
+			handleEcho(stdin.args)
 
 		case type_.String():
-			handleType(args[0], path)
+			handleType(stdin.args[0], path)
 
 		case pwd.String():
 			handlePwd()
 
 		case cd.String():
-			handleCd(args[0])
+			handleCd(stdin.args[0])
 
 		default:
-			fullPath, ok := getFullPath(cmd, path)
+			fullPath, ok := getFullPath(stdin.cmd, path)
 			if ok {
-				executeCmd(fullPath, args)
+				executeCmd(fullPath, stdin.args)
 			} else {
-				fmt.Printf("%s: command not found\n", cmd)
+				fmt.Printf("%s: command not found\n", stdin.cmd)
 			}
 		}
 	}
-}
-
-func readFromStdin() ([]string, error) {
-	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	if err != nil {
-		return []string{}, fmt.Errorf("Error reading from stdin: %v", err)
-	}
-
-	withoutDelim := input[:len(input)-1]
-	return strings.Split(withoutDelim, " "), nil
 }
 
 func handleExit() {
@@ -152,17 +104,13 @@ func handlePwd() {
 }
 
 func handleCd(target string) {
-	// home, _ := os.UserHomeDir()
-
 	if strings.HasPrefix(target, "/") {
-		// os.Stat(target)
 		if _, err := os.Stat(target); errors.Is(err, os.ErrNotExist) {
 			fmt.Printf("cd: %s: No such file or directory\n", target)
 			return
 		}
 
 		os.Chdir(target)
-		// os.Chdir(filepath.Join(home, target))
 		return
 	}
 

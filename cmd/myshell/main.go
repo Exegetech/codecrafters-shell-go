@@ -140,8 +140,6 @@ func executeCmd(cmd string, args []string) error {
 }
 
 func handlePwd() {
-	ex, _ := os.Getwd()
-
-	exPath := filepath.Dir(ex)
-	fmt.Println(exPath)
+	pwd, _ := os.Getwd()
+	fmt.Println(pwd)
 }

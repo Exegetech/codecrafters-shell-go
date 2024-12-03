@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
+	// "strings"
 )
 
 type stdin struct {
@@ -47,61 +47,77 @@ func readFromStdin() (stdin, error) {
 }
 
 func parseString(input string) []string {
-	tokens := []string{}
+	args := []string{}
+	arg := []byte{}
 
-	var currentToken strings.Builder
+	current := 0
 
-	inQuotes := false
-	inDoubleQuotes := false
-	isEscaped := false
+	consume := func() byte {
+		ch := input[current]
+		current += 1
+		return ch
+	}
 
-	for _, char := range input {
-		if isEscaped {
-			currentToken.WriteRune(char)
-			isEscaped = false
-			continue
-		}
+	atEnd := func() bool {
+		return current >= len(input)
+	}
 
-		switch char {
+	peek := func() byte {
+		return input[current]
+	}
+
+	for !atEnd() {
+		ch := consume()
+		switch ch {
+		case ' ':
+			if len(arg) != 0 {
+				args = append(args, string(arg))
+				arg = []byte{}
+			}
+
 		case '\'':
-			if inDoubleQuotes {
-				currentToken.WriteRune(char)
-			} else {
-				inQuotes = !inQuotes
+			for !atEnd() {
+				ch = consume()
+				if ch == '\'' {
+					break
+				}
+
+				arg = append(arg, ch)
 			}
 
 		case '"':
-			if inQuotes {
-				currentToken.WriteRune(char)
-			} else {
-				inDoubleQuotes = !inDoubleQuotes
-			}
-
-		case ' ':
-			if inQuotes || inDoubleQuotes {
-				currentToken.WriteRune(char)
-			} else {
-				if currentToken.Len() > 0 {
-					tokens = append(tokens, currentToken.String())
-					currentToken.Reset()
+			for !atEnd() {
+				ch = consume()
+				if ch == '"' {
+					break
 				}
+
+				if ch == '\\' {
+					ch := peek()
+					if ch == '"' || ch == '\\' || ch == '$' || ch == '\n' {
+						arg = append(arg, ch)
+						consume()
+					} else {
+						arg = append(arg, '\\')
+					}
+
+					continue
+				}
+
+				arg = append(arg, ch)
 			}
 
 		case '\\':
-			if inQuotes || inDoubleQuotes {
-				currentToken.WriteRune(char)
-			} else {
-				isEscaped = true
-			}
+			arg = append(arg, consume())
 
 		default:
-			currentToken.WriteRune(char)
+			arg = append(arg, ch)
 		}
 	}
 
-	if currentToken.Len() > 0 {
-		tokens = append(tokens, currentToken.String())
+	if len(arg) != 0 {
+		args = append(args, string(arg))
 	}
 
-	return tokens
+	return args
 }

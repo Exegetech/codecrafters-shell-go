@@ -17,6 +17,7 @@ const (
 	echo builtin = iota
 	exit
 	type_
+	pwd
 )
 
 func (b builtin) String() string {
@@ -27,6 +28,8 @@ func (b builtin) String() string {
 		return "exit"
 	case type_:
 		return "type"
+	case pwd:
+		return "pwd"
 	default:
 		return "unknown"
 	}
@@ -36,6 +39,7 @@ var builtins = map[string]bool{
 	echo.String():  true,
 	exit.String():  true,
 	type_.String(): true,
+	pwd.String():   true,
 }
 
 func main() {
@@ -60,6 +64,9 @@ func main() {
 
 		case type_.String():
 			handleType(args[0], path)
+
+		case pwd.String():
+			handlePwd()
 
 		default:
 			fullPath, ok := getFullPath(cmd, path)
@@ -130,4 +137,11 @@ func executeCmd(cmd string, args []string) error {
 
 	fmt.Print(string(out))
 	return nil
+}
+
+func handlePwd() {
+	ex, _ := os.Getwd()
+
+	exPath := filepath.Dir(ex)
+	fmt.Println(exPath)
 }

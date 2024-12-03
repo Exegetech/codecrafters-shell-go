@@ -166,7 +166,7 @@ func handleCd(target string) {
 		return
 	}
 
-	if strings.HasPrefix(target, "~") {
+	if target == "~" {
 		home, _ := os.UserHomeDir()
 		os.Chdir(home)
 		return

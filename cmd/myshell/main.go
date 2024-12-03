@@ -128,6 +128,6 @@ func executeCmd(cmd string, args []string) error {
 		return fmt.Errorf("Error executing command: %v\n%s", err, out)
 	}
 
-	fmt.Println(string(out))
+	fmt.Print(string(out))
 	return nil
 }

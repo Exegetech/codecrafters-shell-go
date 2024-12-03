@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -120,6 +121,13 @@ func getFullPath(cmd, path string) (string, bool) {
 	return "", false
 }
 
-func executeCmd(cmd string, args []string) {
-	fmt.Println("Executing", cmd, args)
+func executeCmd(cmd string, args []string) error {
+	command := exec.Command(cmd, args...)
+	out, err := command.Output()
+	if err != nil {
+		return fmt.Errorf("Error executing command: %v\n%s", err, out)
+	}
+
+	fmt.Println(string(out))
+	return nil
 }

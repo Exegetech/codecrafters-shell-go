@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	// "strings"
 )
 
 type stdin struct {

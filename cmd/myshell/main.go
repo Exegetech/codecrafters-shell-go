@@ -165,4 +165,14 @@ func handleCd(target string) {
 		// os.Chdir(filepath.Join(home, target))
 		return
 	}
+
+	if strings.HasPrefix(target, "~") {
+		home, _ := os.UserHomeDir()
+		os.Chdir(home)
+		return
+	}
+
+	pwd, _ := os.Getwd()
+	fullPath := filepath.Join(pwd, target)
+	os.Chdir(fullPath)
 }

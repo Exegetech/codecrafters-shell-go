@@ -19,26 +19,10 @@ func readFromStdin() (stdin, error) {
 	}
 
 	input = input[:len(input)-1]
+	inputs := parseString(input)
 
-	i := 0
-	for i < len(input) {
-		if input[i] == ' ' {
-			break
-		}
-
-		i++
-	}
-
-	if i == len(input) {
-		return stdin{
-			cmd:  input,
-			args: []string{},
-		}, nil
-	}
-
-	cmd := input[:i]
-	rest := input[i+1:]
-	args := parseString(rest)
+	cmd := inputs[0]
+	args := inputs[1:]
 
 	return stdin{
 		cmd:  cmd,
